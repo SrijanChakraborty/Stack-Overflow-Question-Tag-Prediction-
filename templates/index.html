@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <head>
+    <title>Tag Prediction</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Adaptive Questions System and Tag Detection</h2>
+      <form id="myForm" action="/action_page" method="post">
+        <div class="form-group">
+          <label for="email">Questions Title</label>
+          <input
+            type="text"
+            class="form-control"
+            id="email"
+            placeholder="Enter the question title"
+            name="email"
+            required
+          />
+        </div>
+        <div class="well" id="predictionDiv"></div>
+        <button type="submit" class="btn btn-default">Submit</button>
+      </form>
+      <div id="alertDiv"></div>
+    </div>
+    <script>
+      document
+        .getElementById("myForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          var email = document.getElementById("email").value;
+          var predictionDiv = document.getElementById("predictionDiv");
+          var alertDiv = document.getElementById("alertDiv");
+          alertDiv.innerHTML = ""; // Clear any existing alerts
+          if (email.trim() === "") {
+            alertDiv.innerHTML =
+              '<div class="alert alert-info"><strong>Info!</strong> Please enter the question title.</div>';
+          } else {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/action_page", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+              if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                  var response = JSON.parse(xhr.responseText);
+                  predictionDiv.innerHTML =
+                    "<strong>Predicted Tags:</strong> " +
+                    response.predicted_tags.join(", ");
+                } else {
+                  alertDiv.innerHTML =
+                    '<div class="alert alert-info"><strong>Info!</strong> Error: ' +
+                    xhr.status +
+                    "</div>";
+                }
+              }
+            };
+            xhr.send(JSON.stringify({ email: email }));
+          }
+        });
+    </script>
+  </body>
+</html>
